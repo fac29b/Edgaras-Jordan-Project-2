@@ -1,6 +1,7 @@
 // Load environment variables from a .env file
 require("dotenv").config();
-
+// Import main();
+const main = require("./app");
 // Import necessary modules from the discord.js library
 const { Client, GatewayIntentBits } = require("discord.js");
 
@@ -22,6 +23,8 @@ client.once("ready", () => {
   console.log(`Bot is now connected.`);
 });
 
+let userMessage = [];
+
 // Event listener for when a message is created in a guild
 client.on("messageCreate", async function (message) {
   try {
@@ -30,8 +33,17 @@ client.on("messageCreate", async function (message) {
 
     // Check if the message starts with the specified command prefix
     if (message.content.startsWith(`${prefix}`)) {
-      // Reply to the message with the author's global name and the content of the message
-      message.reply(`${message.author.globalName} message: ${message}`);
+      // Check if the user already exists in userMessage
+      userMessage.some((user) => user.username === message.author.username)
+        ? userMessage
+            .find((user) => user.username === message.author.username)
+            .conversation.push({ role: `user`, content: `${message.content}` })
+        : userMessage.push({
+            username: `${message.author.username}`,
+            conversation: [{ role: `user`, content: `${message.content}` }],
+          });
+      // GPT Response
+      main(userMessage, message);
     }
   } catch (error) {
     // Log any errors that occur during message processing
