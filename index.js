@@ -1,9 +1,9 @@
 // Load environment variables from a .env file
 require("dotenv").config();
 // Import main();
-const main = require("./app");
+const { main, GenerateImage } = require("./app");
 // Import necessary modules from the discord.js library
-const { Client, GatewayIntentBits } = require("discord.js");
+const { Client, GatewayIntentBits, Partials } = require("discord.js");
 
 // Create a new instance of the Discord client
 const client = new Client({
@@ -11,19 +11,27 @@ const client = new Client({
   intents: [
     GatewayIntentBits.Guilds,
     GatewayIntentBits.GuildMessages,
+    GatewayIntentBits.GuildMembers,
     GatewayIntentBits.MessageContent,
+    GatewayIntentBits.DirectMessageReactions,
+    GatewayIntentBits.DirectMessageTyping,
+    GatewayIntentBits.DirectMessages,
   ],
+  partials: [Partials.Channel, Partials.Message, Partials.Reaction],
 });
 
+// Stored messages in the channel
+let userMessage = [];
+// Stored diorect messages
+let directUserMessage = [];
+
 // Define the command prefix for the bot
-const prefix = "!";
+const prefix = ["!bot", "!design"];
 
 // Event listener for when the bot is ready and connected
 client.once("ready", () => {
   console.log(`Bot is now connected.`);
 });
-
-let userMessage = [];
 
 // Event listener for when a message is created in a guild
 client.on("messageCreate", async function (message) {
@@ -32,18 +40,43 @@ client.on("messageCreate", async function (message) {
     if (message.author.bot) return;
 
     // Check if the message starts with the specified command prefix
-    if (message.content.startsWith(`${prefix}`)) {
-      // Check if the user already exists in userMessage
-      userMessage.some((user) => user.username === message.author.username)
-        ? userMessage
-            .find((user) => user.username === message.author.username)
-            .conversation.push({ role: `user`, content: `${message.content}` })
-        : userMessage.push({
-            username: `${message.author.username}`,
-            conversation: [{ role: `user`, content: `${message.content}` }],
-          });
-      // GPT Response
-      main(userMessage, message);
+    if (message.content.startsWith(`${prefix[0]}`)) {
+      // Checks if message is dirrect
+      if (message.channel.type === 1) {
+        // Check if the user already exists in directUserMessage
+        directUserMessage.some(
+          (user) => user.username === message.author.username
+        )
+          ? directUserMessage
+              .find((user) => user.username === message.author.username)
+              .conversation.push({
+                role: `user`,
+                content: `${message.content}`,
+              })
+          : directUserMessage.push({
+              username: `${message.author.username}`,
+              conversation: [{ role: `user`, content: `${message.content}` }],
+            });
+        main(directUserMessage, message);
+        return;
+      } else if (message.channel.type === 0) {
+        // Check if the user already exists in userMessage
+        userMessage.some((user) => user.username === message.author.username)
+          ? userMessage
+              .find((user) => user.username === message.author.username)
+              .conversation.push({
+                role: `user`,
+                content: `${message.content}`,
+              })
+          : userMessage.push({
+              username: `${message.author.username}`,
+              conversation: [{ role: `user`, content: `${message.content}` }],
+            });
+        main(userMessage, message);
+        return;
+      }
+    } else if (message.content.startsWith(`${prefix[1]}`)) {
+      GenerateImage(message);
     }
   } catch (error) {
     // Log any errors that occur during message processing
