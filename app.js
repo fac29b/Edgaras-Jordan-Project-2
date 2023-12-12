@@ -5,7 +5,7 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_KEY,
 });
 
-const main = async (userMessage, message) => {
+const GenerateMessage = async (userMessage, message) => {
   const response = await openai.chat.completions.create({
     model: "gpt-3.5-turbo",
     messages: userMessage.some(
@@ -58,4 +58,4 @@ const GenerateImage = async (message) => {
 };
 
 // Export functions to use in different files
-module.exports = { main, GenerateImage };
+module.exports = { GenerateMessage, GenerateImage };
