@@ -1,9 +1,16 @@
 // Load environment variables from a .env file
 require("dotenv").config();
+const path = require("path");
+const fs = require("fs");
 // Import main();
 const { GenerateMessage, GenerateImage } = require("./app");
 // Import necessary modules from the discord.js library
-const { Client, GatewayIntentBits, Partials } = require("discord.js");
+const {
+  Client,
+  GatewayIntentBits,
+  Partials,
+  Collection,
+} = require("discord.js");
 
 // Create a new instance of the Discord client
 const client = new Client({
@@ -87,6 +94,40 @@ client.on("messageCreate", async function (message) {
     console.log(error);
   }
 });
+
+client.commands = new Collection();
+const commandsPath = path.join(__dirname, "commands");
+const commandFiles = fs
+  .readdirSync(commandsPath)
+  .filter((file) => file.endsWith(".js"));
+
+for (const file of commandFiles) {
+  const filePath = path.join(commandsPath, file);
+  const command = require(filePath);
+  // Set a new item in the Collection with the key as the command name and the value as the exported module
+  if ("data" in command && "execute" in command) {
+    client.commands.set(command.data.name, command);
+  } else {
+    console.log(
+      `[WARNING] The command at ${filePath} is missing a required "data" or "execute" property.`
+    );
+  }
+}
+
+const eventsPath = path.join(__dirname, "events");
+const eventFiles = fs
+  .readdirSync(eventsPath)
+  .filter((file) => file.endsWith(".js"));
+
+for (const file of eventFiles) {
+  const filePath = path.join(eventsPath, file);
+  const event = require(filePath);
+  if (event.once) {
+    client.once(event.name, (...args) => event.execute(...args));
+  } else {
+    client.on(event.name, (...args) => event.execute(...args));
+  }
+}
 
 // Log in to Discord using the provided token from the environment variables
 client.login(process.env.DISCORD_TOKEN);
