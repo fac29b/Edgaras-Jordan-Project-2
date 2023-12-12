@@ -41,6 +41,7 @@ client.on("messageCreate", async function (message) {
 
     // Check if the message starts with the specified command prefix
     if (message.content.startsWith(`${prefix[0]}`)) {
+      message.channel.sendTyping();
       // Checks if message is dirrect
       if (message.channel.type === 1) {
         // Check if the user already exists in directUserMessage
@@ -78,6 +79,7 @@ client.on("messageCreate", async function (message) {
         return;
       }
     } else if (message.content.startsWith(`${prefix[1]}`)) {
+      message.channel.sendTyping();
       GenerateImage(message);
     }
   } catch (error) {
