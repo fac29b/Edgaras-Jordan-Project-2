@@ -1,7 +1,7 @@
 // Load environment variables from a .env file
 require("dotenv").config();
 // Import main();
-const { main, GenerateImage } = require("./app");
+const { GenerateMessage, GenerateImage } = require("./app");
 // Import necessary modules from the discord.js library
 const { Client, GatewayIntentBits, Partials } = require("discord.js");
 
@@ -21,7 +21,7 @@ const client = new Client({
 });
 
 // Stored messages in the channel
-let userMessage = [];
+let channelUserMessage = [];
 // Stored diorect messages
 let directUserMessage = [];
 
@@ -57,22 +57,24 @@ client.on("messageCreate", async function (message) {
               username: `${message.author.username}`,
               conversation: [{ role: `user`, content: `${message.content}` }],
             });
-        main(directUserMessage, message);
+        GenerateMessage(directUserMessage, message);
         return;
       } else if (message.channel.type === 0) {
         // Check if the user already exists in userMessage
-        userMessage.some((user) => user.username === message.author.username)
-          ? userMessage
+        channelUserMessage.some(
+          (user) => user.username === message.author.username
+        )
+          ? channelUserMessage
               .find((user) => user.username === message.author.username)
               .conversation.push({
                 role: `user`,
                 content: `${message.content}`,
               })
-          : userMessage.push({
+          : channelUserMessage.push({
               username: `${message.author.username}`,
               conversation: [{ role: `user`, content: `${message.content}` }],
             });
-        main(userMessage, message);
+        GenerateMessage(channelUserMessage, message);
         return;
       }
     } else if (message.content.startsWith(`${prefix[1]}`)) {
