@@ -6,7 +6,11 @@
     "openai": "^4.20.1"
   },
   "scripts": {
-    "deploy-command": "node deploy-commands.js",
-    "dev": "nodemon index.js"
+    "deploy-commands": "node deploy-commands.js",
+    "index": "node index.js",
+    "run-all": "npm run deploy-commands && npm run index"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2"
   }
 }
