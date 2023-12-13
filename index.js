@@ -2,6 +2,7 @@
 require("dotenv").config();
 const path = require("path");
 const fs = require("fs");
+const welcome = require("./welcome");
 // Import main();
 const { GenerateMessage, GenerateImage } = require("./app");
 // Import necessary modules from the discord.js library
@@ -35,9 +36,8 @@ let directUserMessage = [];
 // Define the command prefix for the bot
 const prefix = ["!bot"];
 
-// Event listener for when the bot is ready and connected
-client.once("ready", () => {
-  console.log(`Bot is now connected.`);
+client.on("ready", () => {
+  welcome(client);
 });
 
 // Event listener for when a message is created in a guild
