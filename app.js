@@ -63,6 +63,55 @@ const GenerateImage = async (
     });
   }
 };
+const ListColours = async (imageSrc) => {
+  const response = await openai.chat.completions.create({
+    model: "gpt-4-vision-preview",
+    messages: [
+      {
+        role: "user",
+        content: [
+          {
+            type: "text",
+            text: `Give me a list of all the colours used in this image.`,
+          },
+          {
+            type: "image_url",
+            image_url: {
+              url: imageSrc,
+            },
+          },
+        ],
+      },
+    ],
+  });
+  return response;
+};
+
+const Overview = async (imageSrc, riskFactor) => {
+  const response = await openai.chat.completions.create({
+    model: "gpt-4-vision-preview",
+    // max_tokens: 2048,
+    messages: [
+      {
+        role: "user",
+        content: [
+          {
+            type: "text",
+            text: `Give me a summary of the given image.`,
+          },
+          {
+            type: "image_url",
+            image_url: {
+              url: imageSrc,
+            },
+          },
+        ],
+      },
+    ],
+    temperature: riskFactor,
+  });
+  return response;
+};
 
 // Export functions to use in different files
-module.exports = { GenerateMessage, GenerateImage };
+module.exports = { GenerateMessage, GenerateImage, ListColours, Overview };
