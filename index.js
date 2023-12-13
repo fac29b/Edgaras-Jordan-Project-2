@@ -33,7 +33,7 @@ let channelUserMessage = [];
 let directUserMessage = [];
 
 // Define the command prefix for the bot
-const prefix = ["!bot", "!design"];
+const prefix = ["!bot"];
 
 // Event listener for when the bot is ready and connected
 client.once("ready", () => {
@@ -85,9 +85,6 @@ client.on("messageCreate", async function (message) {
         GenerateMessage(channelUserMessage, message);
         return;
       }
-    } else if (message.content.startsWith(`${prefix[1]}`)) {
-      message.channel.sendTyping();
-      GenerateImage(message);
     }
   } catch (error) {
     // Log any errors that occur during message processing
@@ -100,7 +97,6 @@ const commandsPath = path.join(__dirname, "commands");
 const commandFiles = fs
   .readdirSync(commandsPath)
   .filter((file) => file.endsWith(".js"));
-
 for (const file of commandFiles) {
   const filePath = path.join(commandsPath, file);
   const command = require(filePath);

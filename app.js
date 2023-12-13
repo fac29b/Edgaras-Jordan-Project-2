@@ -36,11 +36,18 @@ const GenerateMessage = async (userMessage, message) => {
   }
 };
 // Generates images using openai
-const GenerateImage = async (message) => {
+const GenerateImage = async (
+  message,
+  descriptionValue,
+  styleValue,
+  additionalValue,
+  nameValue,
+  sizeValue
+) => {
   const response = await openai.images.generate({
     model: "dall-e-2",
-    prompt: message.content,
-    size: "256x256",
+    prompt: `Description: ${descriptionValue}\nImage style: ${styleValue}\nAdditional information about image: ${additionalValue}`,
+    size: sizeValue,
     n: 1,
   });
   // imageData is image url
@@ -48,11 +55,11 @@ const GenerateImage = async (message) => {
   // Type = 0 is channel, Type = 1 is direct message
   if (message.channel.type === 0) {
     message.channel.send({
-      files: [{ attachment: imageData, name: "image.png" }],
+      files: [{ attachment: imageData, name: `${nameValue}.png` }],
     });
   } else if (message.channel.type === 1) {
     message.author.send({
-      files: [{ attachment: imageData, name: "image.png" }],
+      files: [{ attachment: imageData, name: `${nameValue}.png` }],
     });
   }
 };
